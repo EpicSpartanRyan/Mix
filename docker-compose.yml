@@ -1,0 +1,40 @@
+
+services:
+  # Servicio 1: Tu Aplicación Principal en Python 3.14
+  main-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python_main_app
+    restart: unless-stopped
+    volumes:
+      - ./app:/app
+    environment:
+      - OB_HOST=oceanbase
+      - OB_PORT=2881
+    depends_on:
+      - oceanbase
+    networks:
+      - app-net
+
+  # Servicio 2: OceanBase Community Edition (Base de datos NewSQL / HTAP)
+  oceanbase:
+    image: oceanbase/oceanbase-ce:latest
+    container_name: oceanbase_db
+    restart: unless-stopped
+    ports:
+      - "2881:2881"   # Puerto SQL nativo para conexiones cliente (MySQL/Oracle mode)
+    environment:
+      - MODE=slim     # Modo optimizado para desarrollo local
+      - OCP_VISIBLE=false
+    networks:
+      - app-net
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "127.0.0.1", "-P", "2881", "-u", "root", "-e", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app-net:
+    driver: bridge
