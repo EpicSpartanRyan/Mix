@@ -11,12 +11,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Establecer directorio de trabajo
 WORKDIR /app
 
-# Instalar dependencias de Python del stack
+# Copiar requirements
 COPY app/requirements.txt .
+
+# Instalar PyTorch estándar y el resto de dependencias del stack
 RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir torch torchvision torchaudio && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copiar el código fuente
 COPY app/ .
 
-CMD ["python", "main.py"]
+# En lugar de solo ejecutar y salir, puedes usar un comando que mantenga el contenedor activo:
+CMD ["python", "-u", "main.py"]

@@ -1,6 +1,4 @@
-
 services:
-  # Servicio 1: Tu Aplicación Principal en Python 3.14
   main-app:
     build:
       context: .
@@ -16,16 +14,23 @@ services:
       - oceanbase
     networks:
       - app-net
+    # 👇 ESTO PASA TU TARJETA GRÁFICA FÍSICA AL CONTENEDOR
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
-  # Servicio 2: OceanBase Community Edition (Base de datos NewSQL / HTAP)
   oceanbase:
     image: oceanbase/oceanbase-ce:latest
     container_name: oceanbase_db
     restart: unless-stopped
     ports:
-      - "2881:2881"   # Puerto SQL nativo para conexiones cliente (MySQL/Oracle mode)
+      - "2881:2881"
     environment:
-      - MODE=slim     # Modo optimizado para desarrollo local
+      - MODE=slim
       - OCP_VISIBLE=false
     networks:
       - app-net
