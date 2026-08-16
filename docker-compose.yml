@@ -80,7 +80,8 @@ services:
     image: milvusdb/milvus:latest
     container_name: milvus-standalone
     restart: unless-stopped
-    command: ["milvus", "run", "standalone"]
+    # Redirigimos stderr y stdout a /dev/null
+    command: ["sh", "-c", "milvus run standalone > /dev/null 2>&1"]
     environment:
       - ETCD_ENDPOINTS=etcd:2379
       - MINIO_ADDRESS=milvus-minio:9000
