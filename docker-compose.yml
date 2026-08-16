@@ -1,5 +1,5 @@
 services:
-  # Servicio 1: Tu Aplicación Principal en Python 3.14
+  # Servicio 1: Tu Aplicación Principal
   main-app:
     build:
       context: .
@@ -13,9 +13,13 @@ services:
       - OB_PORT=2881
       - MILVUS_HOST=milvus-standalone
       - MILVUS_PORT=19530
+      # Nuevo: Variable de entorno para Dragonfly
+      - DRAGONFLY_HOST=dragonfly
+      - DRAGONFLY_PORT=6379
     depends_on:
       - oceanbase
       - milvus-standalone
+      - dragonfly
     networks:
       - app-net
     deploy:
@@ -26,7 +30,18 @@ services:
               count: 1
               capabilities: [gpu]
 
-  # Servicio 2: OceanBase Community Edition
+  # Servicio Nuevo: DragonflyDB (Drop-in replacement de Redis)
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly:latest
+    container_name: dragonfly
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["dragonfly", "--logtostderr"]
+    networks:
+      - app-net
+
+  # ... (OceanBase, etcd, minio y milvus-standalone siguen igual)
   oceanbase:
     image: oceanbase/oceanbase-ce:latest
     container_name: oceanbase_db
