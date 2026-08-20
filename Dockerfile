@@ -23,4 +23,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY app/ .
 
 # En lugar de solo ejecutar y salir, puedes usar un comando que mantenga el contenedor activo:
-CMD ["python", "-u", "main.py"]
+CMD ["python", "-u", "tests/test_emqx.py"]
