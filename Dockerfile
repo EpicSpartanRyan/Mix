@@ -23,4 +23,5 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY app/ .
 
 # En lugar de solo ejecutar y salir, puedes usar un comando que mantenga el contenedor activo:
-CMD ["python", "-u", "tests/test_emqx.py"]
+# CMD ["python", "-u", "main.py"]
+CMD ["uvicorn", "main:app", "--reload", "--host", "0.0.0.0"]
