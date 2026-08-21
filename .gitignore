@@ -1,0 +1,3 @@
+app/celerybeat-schedule
+app/celerybeat-schedule-wal
+app/celerybeat-schedule-shm
