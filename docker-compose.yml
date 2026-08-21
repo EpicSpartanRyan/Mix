@@ -3,22 +3,16 @@ services:
   main-app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./app/Dockerfile
     container_name: python_main_app
     restart: unless-stopped
+    command: /start
     ports:
       - "8000:8000"
     volumes:
       - ./app:/app
-    environment:
-      - OB_HOST=oceanbase
-      - OB_PORT=2881
-      - MILVUS_HOST=milvus-standalone
-      - MILVUS_PORT=19530
-      - DRAGONFLY_HOST=dragonfly
-      - DRAGONFLY_PORT=6379
-      - MQTT_BROKER_HOST=emqx
-      - MQTT_BROKER_PORT=1883
+    env_file:
+      - .env/.dev-sample
     depends_on:
       - oceanbase
       - milvus-standalone
@@ -33,6 +27,80 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    container_name: celery_worker
+    restart: unless-stopped
+    command: /start-celeryworker
+    volumes:
+      - ./app:/app
+    env_file:
+      - .env/.dev-sample
+    depends_on:
+      - oceanbase
+      - milvus-standalone
+      - dragonfly
+      - emqx
+    networks:
+      - app-net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    container_name: celery_beat
+    restart: unless-stopped
+    command: /start-celerybeat
+    volumes:
+      - ./app:/app
+    env_file:
+      - .env/.dev-sample
+    depends_on:
+      - oceanbase
+      - milvus-standalone
+      - dragonfly
+      - emqx
+    networks:
+      - app-net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  flower:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    container_name: celery_flower
+    restart: unless-stopped
+    command: /start-flower
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./app:/app
+    env_file:
+      - .env/.dev-sample
+    depends_on:
+      - oceanbase
+      - milvus-standalone
+      - dragonfly
+      - emqx
+    networks:
+      - app-net
+
 
   # Servicio Nuevo: EMQX (Broker MQTT Enterprise/Community)
   emqx:
