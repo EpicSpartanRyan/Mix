@@ -1,5 +1,6 @@
-from celery import shared_task
 import cupy as cp
+from celery import shared_task
+
 
 @shared_task
 def run_cupy_matrix_mult():

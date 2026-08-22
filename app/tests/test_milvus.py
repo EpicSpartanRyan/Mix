@@ -9,6 +9,7 @@ from pymilvus import (
     utility,
     PyMilvusDeprecationWarning
 )
+from celery import shared_task
 
 # Suprimir advertencias de deprecación
 warnings.filterwarnings("ignore", category=PyMilvusDeprecationWarning)
@@ -16,6 +17,7 @@ warnings.filterwarnings("ignore", category=PyMilvusDeprecationWarning)
 HOST = "milvus-standalone"
 PORT = "19530"
 
+@shared_task
 def test_milvus_connection():
     print(f"[*] Conectando a Milvus ({HOST}:{PORT})...")
     
@@ -30,7 +32,9 @@ def test_milvus_connection():
             
     if not connected:
         print("[X] Error: No se pudo conectar a Milvus.")
-        return
+        return {
+            "status": "Error: No se pudo conectar a Milvus."
+        }
 
     collection_name = "test_vector_collection"
 
@@ -64,13 +68,21 @@ def test_milvus_connection():
 
     print("[+] Conexión y operaciones exitosas.")
     print("--- Resultados de Búsqueda ---")
+    
+    search_results = []
     for hits in results:
         for hit in hits:
-            print(f"  -> Match: '{hit.entity.get('text')}' (Distancia: {hit.distance:.4f})")
+            match_text = hit.entity.get('text')
+            distance = float(hit.distance)
+            print(f"  -> Match: '{match_text}' (Distancia: {distance:.4f})")
+            search_results.append({"text": match_text, "distance": distance})
 
     utility.drop_collection(collection_name)
     connections.disconnect("default")
     print("[+] Test completado y recursos liberados.")
 
-if __name__ == "__main__":
-    test_milvus_connection()
+    return {
+        "host": HOST,
+        "results": search_results,
+        "status": "¡Prueba Milvus completada con éxito!"
+    }

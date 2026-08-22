@@ -2,6 +2,7 @@ import os
 import time
 
 import paho.mqtt.client as mqtt
+from celery import shared_task
 
 # Leer la IP/Host desde el entorno (por defecto 'emqx' para Docker, o 'localhost' si lo corres fuera)
 BROKER_HOST = os.getenv("MQTT_BROKER_HOST", "emqx")
@@ -25,10 +26,10 @@ def on_message(client, userdata, msg):
 def on_subscribe(client, userdata, mid, reason_codes, properties):
     print(f"[+] Suscripción confirmada (MID: {mid})")
 
-def main():
+@shared_task
+def test_emqx_connection():
     print("[*] Inicializando cliente MQTT...")
     
-    # Inicializar especificando CallbackAPIVersion.VERSION2 para evitar el warning
     client = mqtt.Client(
         client_id="python_test_script", 
         protocol=mqtt.MQTTv5, 
@@ -57,5 +58,8 @@ def main():
     client.disconnect()
     print("[+] Prueba finalizada con éxito.")
 
-if __name__ == "__main__":
-    main()
+    return {
+        "broker_host": BROKER_HOST,
+        "topic": TOPIC_PRUEBA,
+        "status": "¡Prueba EMQX completada con éxito!"
+    }

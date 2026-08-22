@@ -1,14 +1,15 @@
 import os
 import time
-
 import pymysql
+from celery import shared_task
 
 OB_HOST = os.getenv("OB_HOST", "oceanbase")
 OB_PORT = int(os.getenv("OB_PORT", 2881))
 OB_USER = "root@sys"
 OB_PASSWORD = ""
 
-def test_connection():
+@shared_task
+def test_oceanbase_connection():
     print(f"Esperando a que OceanBase esté listo en {OB_HOST}:{OB_PORT}...")
     
     max_retries = 30
@@ -34,12 +35,18 @@ def test_connection():
                 print(f"Versión del motor: {result['version']}")
                 
             connection.close()
-            return
+            return {
+                "host": OB_HOST,
+                "port": OB_PORT,
+                "database": "oceanbase",
+                "status": "¡Prueba OceanBase completada con éxito!"
+            }
         except Exception as e:
             print(f"Intento {attempt}/{max_retries} fallido: El motor aún está iniciando. Reintentando en {delay}s...")
             time.sleep(delay)
             
-    raise Exception("No se pudo establecer la conexión con OceanBase después de varios intentos.")
-
-if __name__ == "__main__":
-    test_connection()
+    return {
+        "host": OB_HOST,
+        "port": OB_PORT,
+        "status": "Error: No se pudo establecer la conexión con OceanBase."
+    }
