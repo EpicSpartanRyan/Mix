@@ -1,3 +1,4 @@
 app/celerybeat-schedule
 app/celerybeat-schedule-wal
 app/celerybeat-schedule-shm
+app/tests/__init__.py

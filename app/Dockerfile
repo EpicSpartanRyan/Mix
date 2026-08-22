@@ -8,9 +8,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Establecer directorio de trabajo
-# WORKDIR /app
-
 # Copiar requirements
 COPY app/requirements.txt .
 
@@ -45,8 +42,5 @@ WORKDIR /app
 # Copiar el código fuente
 COPY app/ .
 
-# En lugar de solo ejecutar y salir, puedes usar un comando que mantenga el contenedor activo:
-# CMD ["python", "-u", "main.py"]
-# CMD ["uvicorn", "main:app", "--reload", "--host", "0.0.0.0"]
 
 ENTRYPOINT ["/entrypoint"]
