@@ -1,5 +1,7 @@
 services:
   # Servicio 1: Tu Aplicación Principal
+
+  #TODO: agregar volumes de emqx, dragonfly, oceanbase
   main-app:
     build:
       context: .

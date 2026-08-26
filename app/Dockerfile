@@ -25,15 +25,15 @@ COPY ./app/start /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 
-COPY ./app/celery/worker/start /start-celeryworker
+COPY ./app/celery-init/worker/start /start-celeryworker
 RUN sed -i 's/\r$//g' /start-celeryworker
 RUN chmod +x /start-celeryworker
 
-COPY ./app/celery/beat/start /start-celerybeat
+COPY ./app/celery-init/beat/start /start-celerybeat
 RUN sed -i 's/\r$//g' /start-celerybeat
 RUN chmod +x /start-celerybeat
 
-COPY ./app/celery/flower/start /start-flower
+COPY ./app/celery-init/flower/start /start-flower
 RUN sed -i 's/\r$//g' /start-flower
 RUN chmod +x /start-flower
 
