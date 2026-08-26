@@ -110,11 +110,14 @@ services:
     container_name: emqx_broker
     restart: unless-stopped
     ports:
-      - "1883:1883"   # Puerto MQTT estándar para dispositivos y clientes
+      - "1883:1883"   # MQTT estándar
       - "8083:8083"   # MQTT over WebSockets
-      - "8084:8084"   # MQTT over WSS (Secure WebSockets)
+      - "8084:8084"   # MQTT over WSS
       - "8883:8883"   # MQTT Secure (TLS)
-      - "18083:18083" # Dashboard web de administración de EMQX
+      - "18083:18083" # Dashboard web
+    volumes:
+      - emqx-data:/opt/emqx/data
+      - emqx-log:/opt/emqx/log
     networks:
       - app-net
 
@@ -125,7 +128,9 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
-    command: ["dragonfly", "--logtostderr"]
+    volumes:
+      - dragonfly-data:/data
+    command: [ "dragonfly", "--logtostderr", "--dir=/data" ]
     networks:
       - app-net
 
@@ -139,6 +144,8 @@ services:
     environment:
       - MODE=slim
       - OCP_VISIBLE=false
+    volumes:
+      - oceanbase-data:/root/ob
     networks:
       - app-net
 
@@ -207,3 +214,7 @@ volumes:
   etcd-data:
   minio-data:
   milvus-data:
+  oceanbase-data:
+  emqx-data:
+  emqx-log:
+  dragonfly-data:
