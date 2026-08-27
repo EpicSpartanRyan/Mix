@@ -1,8 +1,10 @@
 import os
 import time
+from typing import Annotated
 from urllib.parse import quote_plus
 
 from celery import shared_task
+from fastapi import Depends
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 OB_HOST = os.getenv("OB_HOST", "oceanbase")
@@ -27,12 +29,19 @@ DATABASE_URL = (
 )
 engine = create_engine(DATABASE_URL)
 
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
+
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 
-def create_and_find_test_user():
+def create_and_find_test_user(session: SessionDep):
     user_suffix = int(time.time())
     user_to_create = User(
         username=f"test_user_{user_suffix}",
@@ -40,13 +49,12 @@ def create_and_find_test_user():
         password="test-password",
     )
 
-    with Session(engine) as session:
-        session.add(user_to_create)
-        session.commit()
-        session.refresh(user_to_create)
+    session.add(user_to_create)
+    session.commit()
+    session.refresh(user_to_create)
 
-        statement = select(User).where(User.username == user_to_create.username)
-        user_found = session.exec(statement).first()
+    statement = select(User).where(User.username == user_to_create.username)
+    user_found = session.exec(statement).first()
 
     if user_found is None:
         raise RuntimeError("El usuario de prueba no fue encontrado.")
@@ -64,7 +72,8 @@ def test_oceanbase_connection():
     for attempt in range(1, max_retries + 1):
         try:
             create_db_and_tables()
-            user_found = create_and_find_test_user()
+            with Session(engine) as session:
+                user_found = create_and_find_test_user(session)
             print("¡Conexión a OceanBase exitosa!")
             print(f"Usuario creado y encontrado: {user_found.username} (id={user_found.id})")
             return {
