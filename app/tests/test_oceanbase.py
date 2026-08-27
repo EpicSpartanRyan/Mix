@@ -2,7 +2,6 @@ import os
 import time
 from urllib.parse import quote_plus
 
-import pymysql
 from celery import shared_task
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
@@ -58,34 +57,16 @@ def create_and_find_test_user():
 @shared_task
 def test_oceanbase_connection():
     print(f"Esperando a que OceanBase esté listo en {OB_HOST}:{OB_PORT}...")
-    
+
     max_retries = 30
     delay = 3
-    
+
     for attempt in range(1, max_retries + 1):
         try:
-            connection = pymysql.connect(
-                host=OB_HOST,
-                port=OB_PORT,
-                user=OB_USER,
-                password=OB_PASSWORD,
-                database=OB_DATABASE,
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor,
-                connect_timeout=5
-            )
-            
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT version() as version;")
-                result = cursor.fetchone()
-                print("¡Conexión a OceanBase exitosa!")
-                print(f"Versión del motor: {result['version']}")
-
             create_db_and_tables()
-            print("Tabla users creada o ya existente.")
             user_found = create_and_find_test_user()
+            print("¡Conexión a OceanBase exitosa!")
             print(f"Usuario creado y encontrado: {user_found.username} (id={user_found.id})")
-            connection.close()
             return {
                 "host": OB_HOST,
                 "port": OB_PORT,
