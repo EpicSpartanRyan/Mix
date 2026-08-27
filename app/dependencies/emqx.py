@@ -8,7 +8,14 @@ from fastapi import Depends
 
 BROKER_HOST = os.getenv("MQTT_BROKER_HOST", "emqx")
 BROKER_PORT = int(os.getenv("MQTT_BROKER_PORT", 1883))
-TOPIC_PRUEBA = "iot/test/conexion"
+MQTT_CLIENT_ID = os.getenv("MQTT_CLIENT_ID", "python_test_script")
+MQTT_TOPIC = os.getenv("MQTT_TOPIC", "iot/test/conexion")
+MQTT_KEEPALIVE = int(os.getenv("MQTT_KEEPALIVE", 60))
+MQTT_MAX_RETRIES = int(os.getenv("MQTT_MAX_RETRIES", 5))
+MQTT_RETRY_DELAY = float(os.getenv("MQTT_RETRY_DELAY", 3))
+MQTT_STARTUP_DELAY = float(os.getenv("MQTT_STARTUP_DELAY", 1))
+MQTT_MESSAGE_DELAY = float(os.getenv("MQTT_MESSAGE_DELAY", 2))
+TOPIC_PRUEBA = MQTT_TOPIC
 
 
 def on_connect(client, userdata, flags, reason_code, properties):
@@ -33,7 +40,7 @@ def on_subscribe(client, userdata, mid, reason_codes, properties):
 @contextmanager
 def emqx_context():
     client = mqtt.Client(
-        client_id="python_test_script",
+        client_id=MQTT_CLIENT_ID,
         protocol=mqtt.MQTTv5,
         callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
     )
@@ -41,11 +48,11 @@ def emqx_context():
     client.on_message = on_message
     client.on_subscribe = on_subscribe
 
-    for attempt in range(5):
+    for attempt in range(MQTT_MAX_RETRIES):
         try:
-            client.connect(BROKER_HOST, BROKER_PORT, keepalive=60)
+            client.connect(BROKER_HOST, BROKER_PORT, keepalive=MQTT_KEEPALIVE)
             client.loop_start()
-            time.sleep(1)
+            time.sleep(MQTT_STARTUP_DELAY)
             try:
                 yield client
             finally:
@@ -53,9 +60,9 @@ def emqx_context():
                 client.disconnect()
             return
         except Exception:
-            if attempt == 4:
+            if attempt == MQTT_MAX_RETRIES - 1:
                 raise
-            time.sleep(3)
+            time.sleep(MQTT_RETRY_DELAY)
 
 
 def get_emqx():

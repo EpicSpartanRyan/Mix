@@ -8,11 +8,13 @@ from pymilvus import MilvusClient
 
 MILVUS_HOST = os.getenv("MILVUS_HOST", "milvus-standalone")
 MILVUS_PORT = os.getenv("MILVUS_PORT", "19530")
+MILVUS_MAX_RETRIES = int(os.getenv("MILVUS_MAX_RETRIES", 5))
+MILVUS_RETRY_DELAY = float(os.getenv("MILVUS_RETRY_DELAY", 3))
 
 
 @contextmanager
 def milvus_context():
-    for attempt in range(5):
+    for attempt in range(MILVUS_MAX_RETRIES):
         try:
             client = MilvusClient(uri=f"http://{MILVUS_HOST}:{MILVUS_PORT}")
             try:
@@ -21,9 +23,9 @@ def milvus_context():
                 client.close()
             return
         except Exception:
-            if attempt == 4:
+            if attempt == MILVUS_MAX_RETRIES - 1:
                 raise
-            time.sleep(3)
+            time.sleep(MILVUS_RETRY_DELAY)
 
 
 def get_milvus():

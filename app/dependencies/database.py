@@ -13,10 +13,11 @@ OB_PORT = int(os.getenv("OB_PORT", 2881))
 OB_USER = os.getenv("OB_USER", "root@sys")
 OB_PASSWORD = os.getenv("OB_PASSWORD", "")
 OB_DATABASE = os.getenv("OB_DATABASE", "oceanbase")
+OB_CHARSET = os.getenv("OB_CHARSET", "utf8mb4")
 
 DATABASE_URL = (
     f"mysql+pymysql://{quote_plus(OB_USER)}:{quote_plus(OB_PASSWORD)}"
-    f"@{OB_HOST}:{OB_PORT}/{OB_DATABASE}?charset=utf8mb4"
+    f"@{OB_HOST}:{OB_PORT}/{OB_DATABASE}?charset={OB_CHARSET}"
 )
 engine = create_engine(DATABASE_URL)
 

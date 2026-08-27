@@ -2,17 +2,24 @@ import time
 
 from celery import shared_task
 
-from dependencies.emqx import BROKER_HOST, EmqxDep, TOPIC_PRUEBA, emqx_context
+from dependencies.emqx import (
+    BROKER_HOST,
+    EmqxDep,
+    MQTT_MESSAGE_DELAY,
+    MQTT_STARTUP_DELAY,
+    TOPIC_PRUEBA,
+    emqx_context,
+)
 
 def run_emqx_check(client: EmqxDep):
-    time.sleep(1)
+    time.sleep(MQTT_STARTUP_DELAY)
     mensaje_payload = "¡Hola EMQX desde Python y PyTorch Stack!"
     print(f"[*] Publicando mensaje en '{TOPIC_PRUEBA}'...")
 
     result = client.publish(TOPIC_PRUEBA, mensaje_payload, qos=1)
     result.wait_for_publish()
     print("[+] Mensaje publicado correctamente.")
-    time.sleep(2)
+    time.sleep(MQTT_MESSAGE_DELAY)
 
     return {
         "broker_host": BROKER_HOST,
