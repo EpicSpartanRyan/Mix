@@ -1,44 +1,16 @@
-import os
 import time
-from typing import Annotated
-from urllib.parse import quote_plus
 
 from celery import shared_task
-from fastapi import Depends
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlmodel import select
 
-OB_HOST = os.getenv("OB_HOST", "oceanbase")
-OB_PORT = int(os.getenv("OB_PORT", 2881))
-OB_USER = os.getenv("OB_USER", "root@sys")
-OB_PASSWORD = os.getenv("OB_PASSWORD", "")
-OB_DATABASE = os.getenv("OB_DATABASE", "oceanbase")
-
-
-class User(SQLModel, table=True):
-    __tablename__ = "users"
-
-    id: int | None = Field(default=None, primary_key=True)
-    username: str
-    email: str
-    password: str
-
-
-DATABASE_URL = (
-    f"mysql+pymysql://{quote_plus(OB_USER)}:{quote_plus(OB_PASSWORD)}"
-    f"@{OB_HOST}:{OB_PORT}/{OB_DATABASE}?charset=utf8mb4"
+from database import (
+    OB_DATABASE,
+    OB_HOST,
+    OB_PORT,
+    SessionDep,
+    session_context,
 )
-engine = create_engine(DATABASE_URL)
-
-def get_session():
-    with Session(engine) as session:
-        yield session
-
-
-SessionDep = Annotated[Session, Depends(get_session)]
-
-
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+from models import User
 
 
 def create_and_find_test_user(session: SessionDep):
@@ -71,8 +43,7 @@ def test_oceanbase_connection():
 
     for attempt in range(1, max_retries + 1):
         try:
-            create_db_and_tables()
-            with Session(engine) as session:
+            with session_context() as session:
                 user_found = create_and_find_test_user(session)
             print("¡Conexión a OceanBase exitosa!")
             print(f"Usuario creado y encontrado: {user_found.username} (id={user_found.id})")
