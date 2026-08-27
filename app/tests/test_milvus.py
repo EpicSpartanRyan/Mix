@@ -1,88 +1,77 @@
-import time
-import warnings
-from pymilvus import (
-    Collection,
-    CollectionSchema,
-    DataType,
-    FieldSchema,
-    connections,
-    utility,
-    PyMilvusDeprecationWarning
-)
+from pymilvus import DataType
 from celery import shared_task
 
-# Suprimir advertencias de deprecación
-warnings.filterwarnings("ignore", category=PyMilvusDeprecationWarning)
+from dependencies.milvus import MILVUS_HOST, MILVUS_PORT, MilvusDep, milvus_context
 
-HOST = "milvus-standalone"
-PORT = "19530"
 
-@shared_task
-def test_milvus_connection():
-    print(f"[*] Conectando a Milvus ({HOST}:{PORT})...")
-    
-    connected = False
-    for i in range(5):
-        try:
-            connections.connect("default", host=HOST, port=PORT)
-            connected = True
-            break
-        except Exception:
-            time.sleep(3)
-            
-    if not connected:
-        print("[X] Error: No se pudo conectar a Milvus.")
-        return {
-            "status": "Error: No se pudo conectar a Milvus."
-        }
-
+def run_milvus_check(client: MilvusDep):
     collection_name = "test_vector_collection"
 
-    if utility.has_collection(collection_name):
-        utility.drop_collection(collection_name)
+    if client.has_collection(collection_name):
+        client.drop_collection(collection_name)
 
-    fields = [
-        FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
-        FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=4),
-        FieldSchema(name="text", dtype=DataType.VARCHAR, max_length=200)
-    ]
-    schema = CollectionSchema(fields=fields, description="Colección de prueba")
-    collection = Collection(name=collection_name, schema=schema)
+    schema = client.create_schema(auto_id=True, enable_dynamic_field=False)
+    schema.add_field("id", DataType.INT64, is_primary=True)
+    schema.add_field("vector", DataType.FLOAT_VECTOR, dim=4)
+    schema.add_field("text", DataType.VARCHAR, max_length=200)
+
+    index_params = client.prepare_index_params()
+    index_params.add_index(
+        field_name="vector",
+        index_type="IVF_FLAT",
+        metric_type="L2",
+        params={"nlist": 128},
+    )
+    client.create_collection(
+        collection_name=collection_name,
+        schema=schema,
+        index_params=index_params,
+    )
 
     vectors = [[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7, 0.8], [0.9, 1.0, 1.1, 1.2]]
     texts = ["Primer vector", "Segundo vector", "Tercer vector"]
     
-    collection.insert([vectors, texts])
-    collection.flush()
+    client.insert(
+        collection_name,
+        [{"vector": vector, "text": text} for vector, text in zip(vectors, texts)],
+    )
 
-    collection.create_index("vector", {"metric_type": "L2", "index_type": "IVF_FLAT", "params": {"nlist": 128}})
-    collection.load()
-
-    results = collection.search(
+    results = client.search(
+        collection_name=collection_name,
         data=[[0.1, 0.2, 0.3, 0.4]],
         anns_field="vector",
-        param={"metric_type": "L2", "params": {"nprobe": 10}},
+        search_params={"metric_type": "L2", "params": {"nprobe": 10}},
         limit=2,
-        output_fields=["text"]
+        output_fields=["text"],
     )
 
     print("[+] Conexión y operaciones exitosas.")
     print("--- Resultados de Búsqueda ---")
     
     search_results = []
-    for hits in results:
-        for hit in hits:
-            match_text = hit.entity.get('text')
-            distance = float(hit.distance)
-            print(f"  -> Match: '{match_text}' (Distancia: {distance:.4f})")
-            search_results.append({"text": match_text, "distance": distance})
+    for hit in results[0]:
+        match_text = hit["entity"].get("text")
+        distance = float(hit["distance"])
+        print(f"  -> Match: '{match_text}' (Distancia: {distance:.4f})")
+        search_results.append({"text": match_text, "distance": distance})
 
-    utility.drop_collection(collection_name)
-    connections.disconnect("default")
-    print("[+] Test completado y recursos liberados.")
+    client.drop_collection(collection_name)
 
     return {
-        "host": HOST,
+        "host": MILVUS_HOST,
         "results": search_results,
         "status": "¡Prueba Milvus completada con éxito!"
     }
+
+
+@shared_task
+def test_milvus_connection():
+    print(f"[*] Conectando a Milvus ({MILVUS_HOST}:{MILVUS_PORT})...")
+    try:
+        with milvus_context() as client:
+            result = run_milvus_check(client)
+        print("[+] Test completado y recursos liberados.")
+        return result
+    except Exception as error:
+        print(f"[X] Error al conectar o interactuar con Milvus: {error}")
+        return {"status": "Error: No se pudo conectar a Milvus."}
