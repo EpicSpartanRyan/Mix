@@ -3,14 +3,14 @@ import time
 from celery import shared_task
 from sqlmodel import select
 
-from database import (
+from dependencies.database import (
     OB_DATABASE,
     OB_HOST,
     OB_PORT,
     SessionDep,
     session_context,
 )
-from models import User
+from models.user import User
 
 
 def create_and_find_test_user(session: SessionDep):

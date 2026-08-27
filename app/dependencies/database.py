@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 
-from models import User
+from models.user import User
 
 OB_HOST = os.getenv("OB_HOST", "oceanbase")
 OB_PORT = int(os.getenv("OB_PORT", 2881))
