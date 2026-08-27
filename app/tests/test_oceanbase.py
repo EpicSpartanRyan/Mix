@@ -4,7 +4,7 @@ from urllib.parse import quote_plus
 
 import pymysql
 from celery import shared_task
-from sqlmodel import Field, SQLModel, create_engine
+from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 OB_HOST = os.getenv("OB_HOST", "oceanbase")
 OB_PORT = int(os.getenv("OB_PORT", 2881))
@@ -32,6 +32,29 @@ engine = create_engine(DATABASE_URL)
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
+
+def create_and_find_test_user():
+    user_suffix = int(time.time())
+    user_to_create = User(
+        username=f"test_user_{user_suffix}",
+        email=f"test_user_{user_suffix}@example.com",
+        password="test-password",
+    )
+
+    with Session(engine) as session:
+        session.add(user_to_create)
+        session.commit()
+        session.refresh(user_to_create)
+
+        statement = select(User).where(User.username == user_to_create.username)
+        user_found = session.exec(statement).first()
+
+    if user_found is None:
+        raise RuntimeError("El usuario de prueba no fue encontrado.")
+
+    return user_found
+
+
 @shared_task
 def test_oceanbase_connection():
     print(f"Esperando a que OceanBase esté listo en {OB_HOST}:{OB_PORT}...")
@@ -46,7 +69,7 @@ def test_oceanbase_connection():
                 port=OB_PORT,
                 user=OB_USER,
                 password=OB_PASSWORD,
-                database="oceanbase",
+                database=OB_DATABASE,
                 charset='utf8mb4',
                 cursorclass=pymysql.cursors.DictCursor,
                 connect_timeout=5
@@ -60,12 +83,19 @@ def test_oceanbase_connection():
 
             create_db_and_tables()
             print("Tabla users creada o ya existente.")
+            user_found = create_and_find_test_user()
+            print(f"Usuario creado y encontrado: {user_found.username} (id={user_found.id})")
             connection.close()
             return {
                 "host": OB_HOST,
                 "port": OB_PORT,
                 "database": OB_DATABASE,
                 "table": "users",
+                "user": {
+                    "id": user_found.id,
+                    "username": user_found.username,
+                    "email": user_found.email,
+                },
                 "status": "¡Conexión y tabla users verificadas con éxito!"
             }
         except Exception as e:
