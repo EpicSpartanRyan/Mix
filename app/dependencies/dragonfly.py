@@ -1,5 +1,6 @@
 import os
 from contextlib import contextmanager
+from functools import wraps
 from typing import Annotated
 
 import redis
@@ -21,10 +22,19 @@ def dragonfly_context():
     finally:
         client.close()
 
+# For celery tasks, we need a way to get a session without using Depends.
+def with_dragonfly(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        with dragonfly_context() as client:
+            return function(client, *args, **kwargs)
+
+    return wrapper
+
 
 def get_dragonfly():
     with dragonfly_context() as client:
         yield client
 
-
+# For FastAPI routes, we can use Depends to inject the session.
 DragonflyDep = Annotated[redis.Redis, Depends(get_dragonfly)]

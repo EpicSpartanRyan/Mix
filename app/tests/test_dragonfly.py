@@ -1,8 +1,9 @@
 from celery import shared_task
 
-from dependencies.dragonfly import DragonflyDep, dragonfly_context
+from dependencies.dragonfly import DragonflyDep, with_dragonfly
 
 
+@with_dragonfly
 def run_dragonfly_check(client: DragonflyDep):
     if client.ping():
         print("[+] ¡Conexión exitosa a Dragonfly!")
@@ -24,7 +25,6 @@ def run_dragonfly_check(client: DragonflyDep):
 @shared_task
 def test_dragonfly_connection():
     try:
-        with dragonfly_context() as client:
-            return run_dragonfly_check(client)
+        return run_dragonfly_check()
     except Exception as e:
         print(f"[X] Error al conectar o interactuar con Dragonfly: {e}")
