@@ -1,9 +1,10 @@
 from pymilvus import DataType
 from celery import shared_task
 
-from dependencies.milvus import MILVUS_HOST, MILVUS_PORT, MilvusDep, milvus_context
+from dependencies.milvus import MILVUS_HOST, MILVUS_PORT, MilvusDep, with_milvus
 
 
+@with_milvus
 def run_milvus_check(client: MilvusDep):
     collection_name = "test_vector_collection"
 
@@ -68,8 +69,7 @@ def run_milvus_check(client: MilvusDep):
 def test_milvus_connection():
     print(f"[*] Conectando a Milvus ({MILVUS_HOST}:{MILVUS_PORT})...")
     try:
-        with milvus_context() as client:
-            result = run_milvus_check(client)
+        result = run_milvus_check()
         print("[+] Test completado y recursos liberados.")
         return result
     except Exception as error:

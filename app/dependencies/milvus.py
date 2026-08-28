@@ -1,6 +1,7 @@
 import os
 import time
 from contextlib import contextmanager
+from functools import wraps
 from typing import Annotated
 
 from fastapi import Depends
@@ -27,10 +28,19 @@ def milvus_context():
                 raise
             time.sleep(MILVUS_RETRY_DELAY)
 
+# For celery tasks, we need a way to get a session without using Depends.
+def with_milvus(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        with milvus_context() as client:
+            return function(client, *args, **kwargs)
+
+    return wrapper
+
 
 def get_milvus():
     with milvus_context() as client:
         yield client
 
-
+# For FastAPI routes, we can use Depends to inject the session.
 MilvusDep = Annotated[MilvusClient, Depends(get_milvus)]
