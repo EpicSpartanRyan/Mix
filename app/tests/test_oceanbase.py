@@ -1,19 +1,19 @@
 import time
 
 from celery import shared_task
-from sqlmodel import select
+from sqlmodel import Session, select
 
 from dependencies.database import (
     OB_DATABASE,
     OB_HOST,
     OB_PORT,
-    SessionDep,
-    session_context,
+    with_session,
 )
 from models.user import User
 
 
-def create_and_find_test_user(session: SessionDep):
+@with_session
+def create_and_find_test_user(session: Session):
     user_suffix = int(time.time())
     user_to_create = User(
         username=f"test_user_{user_suffix}",
@@ -31,7 +31,11 @@ def create_and_find_test_user(session: SessionDep):
     if user_found is None:
         raise RuntimeError("El usuario de prueba no fue encontrado.")
 
-    return user_found
+    return {
+        "id": user_found.id,
+        "username": user_found.username,
+        "email": user_found.email,
+    }
 
 
 @shared_task
@@ -43,19 +47,18 @@ def test_oceanbase_connection():
 
     for attempt in range(1, max_retries + 1):
         try:
-            with session_context() as session:
-                user_found = create_and_find_test_user(session)
+            user_found = create_and_find_test_user()
             print("¡Conexión a OceanBase exitosa!")
-            print(f"Usuario creado y encontrado: {user_found.username} (id={user_found.id})")
+            print(f"Usuario creado y encontrado: {user_found['username']} (id={user_found['id']})")
             return {
                 "host": OB_HOST,
                 "port": OB_PORT,
                 "database": OB_DATABASE,
                 "table": "users",
                 "user": {
-                    "id": user_found.id,
-                    "username": user_found.username,
-                    "email": user_found.email,
+                    "id": user_found["id"],
+                    "username": user_found["username"],
+                    "email": user_found["email"],
                 },
                 "status": "¡Conexión y tabla users verificadas con éxito!"
             }

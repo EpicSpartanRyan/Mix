@@ -1,5 +1,6 @@
 import os
 from contextlib import contextmanager
+from functools import wraps
 from typing import Annotated
 from urllib.parse import quote_plus
 
@@ -28,10 +29,19 @@ def session_context():
     with Session(engine) as session:
         yield session
 
+# For celery tasks, we need a way to get a session without using Depends.
+def with_session(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        with session_context() as session:
+            return function(session, *args, **kwargs)
+
+    return wrapper
+
 
 def get_session():
     with session_context() as session:
         yield session
 
-
+# For FastAPI routes, we can use Depends to inject the session.
 SessionDep = Annotated[Session, Depends(get_session)]
