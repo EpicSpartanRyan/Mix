@@ -1,6 +1,7 @@
 import os
 import time
 from contextlib import contextmanager
+from functools import wraps
 from typing import Annotated
 
 import paho.mqtt.client as mqtt
@@ -64,10 +65,19 @@ def emqx_context():
                 raise
             time.sleep(MQTT_RETRY_DELAY)
 
+# For celery tasks, we need a way to get a session without using Depends.
+def with_emqx(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        with emqx_context() as client:
+            return function(client, *args, **kwargs)
+
+    return wrapper
+
 
 def get_emqx():
     with emqx_context() as client:
         yield client
 
-
+# For FastAPI routes, we can use Depends to inject the session.
 EmqxDep = Annotated[mqtt.Client, Depends(get_emqx)]

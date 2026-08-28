@@ -8,9 +8,11 @@ from dependencies.emqx import (
     MQTT_MESSAGE_DELAY,
     MQTT_STARTUP_DELAY,
     TOPIC_PRUEBA,
-    emqx_context,
+    with_emqx,
 )
 
+
+@with_emqx
 def run_emqx_check(client: EmqxDep):
     time.sleep(MQTT_STARTUP_DELAY)
     mensaje_payload = "¡Hola EMQX desde Python y PyTorch Stack!"
@@ -32,8 +34,7 @@ def run_emqx_check(client: EmqxDep):
 def test_emqx_connection():
     print("[*] Inicializando cliente MQTT...")
     try:
-        with emqx_context() as client:
-            result = run_emqx_check(client)
+        result = run_emqx_check()
         print("[+] Prueba finalizada con éxito.")
         return result
     except Exception as error:
