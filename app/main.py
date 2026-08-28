@@ -3,12 +3,14 @@ import os
 from celery import Celery
 from fastapi import FastAPI
 from routes.tests.test_routes import router as tests_router
+from routes.users import router as users_router
 
 BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://dragonfly:6379/0")
 RESULT_URL = os.getenv("CELERY_RESULT_BACKEND", "redis://dragonfly:6379/0")
 
 app = FastAPI()
 app.include_router(tests_router)
+app.include_router(users_router)
 
 celery = Celery(
     __name__,
