@@ -3,3 +3,7 @@ app/celerybeat-schedule-wal
 app/celerybeat-schedule-shm
 app/datos_prueba.parquet
 __pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
