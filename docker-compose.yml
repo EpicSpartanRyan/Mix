@@ -17,10 +17,14 @@ services:
     env_file:
       - .env/.dev-sample
     depends_on:
-      - oceanbase
-      - milvus-standalone
-      - dragonfly
-      - emqx
+      oceanbase:
+        condition: service_healthy
+      milvus-standalone:
+        condition: service_started
+      dragonfly:
+        condition: service_started
+      emqx:
+        condition: service_started
     networks:
       - app-net
     deploy:
@@ -43,10 +47,14 @@ services:
     env_file:
       - .env/.dev-sample
     depends_on:
-      - oceanbase
-      - milvus-standalone
-      - dragonfly
-      - emqx
+      oceanbase:
+        condition: service_healthy
+      milvus-standalone:
+        condition: service_started
+      dragonfly:
+        condition: service_started
+      emqx:
+        condition: service_started
     networks:
       - app-net
     deploy:
@@ -69,10 +77,14 @@ services:
     env_file:
       - .env/.dev-sample
     depends_on:
-      - oceanbase
-      - milvus-standalone
-      - dragonfly
-      - emqx
+      oceanbase:
+        condition: service_healthy
+      milvus-standalone:
+        condition: service_started
+      dragonfly:
+        condition: service_started
+      emqx:
+        condition: service_started
     networks:
       - app-net
     deploy:
@@ -97,10 +109,14 @@ services:
     env_file:
       - .env/.dev-sample
     depends_on:
-      - oceanbase
-      - milvus-standalone
-      - dragonfly
-      - emqx
+      oceanbase:
+        condition: service_healthy
+      milvus-standalone:
+        condition: service_started
+      dragonfly:
+        condition: service_started
+      emqx:
+        condition: service_started
     networks:
       - app-net
 
@@ -147,6 +163,12 @@ services:
       - OCP_VISIBLE=false
     volumes:
       - oceanbase-data:/root/ob
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/2881'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 90s
     networks:
       - app-net
 
