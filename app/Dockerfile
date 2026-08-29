@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     default-libmysqlclient-dev \
     curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar requirements
