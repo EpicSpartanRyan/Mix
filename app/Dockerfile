@@ -1,5 +1,12 @@
 FROM python:3.14-slim
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
+
 # Instalar dependencias del sistema esenciales, compiladores, pkg-config y headers de MySQL/MariaDB
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -9,13 +16,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar requirements
-COPY app/requirements.txt .
+# Instalar uv en la imagen
+COPY --from=ghcr.io/astral-sh/uv:0.8.13 /uv /uvx /bin/
 
-# Instalar PyTorch estándar y el resto de dependencias del stack
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+WORKDIR /app
 
+# Copiar la definición del proyecto y el lockfile para instalar dependencias reproducibles.
+COPY app/pyproject.toml app/uv.lock* ./
+RUN uv sync --frozen --no-install-project --no-dev
 
 COPY ./app/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
@@ -37,10 +45,8 @@ COPY ./app/celery-init/flower/start /start-flower
 RUN sed -i 's/\r$//g' /start-flower
 RUN chmod +x /start-flower
 
-WORKDIR /app
-
 # Copiar el código fuente
 COPY app/ .
-
+RUN uv sync --frozen --no-dev
 
 ENTRYPOINT ["/entrypoint"]
