@@ -23,14 +23,11 @@ celery.autodiscover_tasks(['tests'])
 @celery.task
 def divide(x, y):
     import time
-    time.sleep(5)
+    time.sleep(1)
     return x / y
 
 
 @app.get("/")
 async def root():
-    task = divide.delay(1, 2)
     return {"message": "Hello World"}
-
-
 
