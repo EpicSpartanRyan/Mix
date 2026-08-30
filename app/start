@@ -4,4 +4,13 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-uvicorn main:app --reload --host 0.0.0.0
+
+# uvicorn main:app --reload --host 0.0.0.0
+
+# Inicia una sesión de tmux desacoplada (-d) ejecutando uvicorn directamente
+tmux new-session -d -s uvicorn "uvicorn main:app --reload --host 0.0.0.0"
+
+# Mantiene el contenedor vivo esperando indefinidamente a que la sesión de tmux termine
+while tmux has-session -t uvicorn 2>/dev/null; do
+    sleep 2
+done

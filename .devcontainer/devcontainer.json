@@ -14,7 +14,15 @@
   "customizations": {
     // Configure properties specific to VS Code.
     "vscode": {
-      "settings": {},
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "attach-uvicorn",
+        "terminal.integrated.profiles.linux": {
+          "attach-uvicorn": {
+            "path": "bash",
+            "args": ["-c", "tmux attach-session -t uvicorn"]
+          }
+        }
+      },
       "extensions": [
         "streetsidesoftware.code-spell-checker",
         "FastAPILabs.fastapi-vscode",

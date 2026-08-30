@@ -9,6 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Instalar dependencias del sistema esenciales, compiladores, pkg-config y headers de MySQL/MariaDB
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    tmux \
     build-essential \
     pkg-config \
     default-libmysqlclient-dev \
