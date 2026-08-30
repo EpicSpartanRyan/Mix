@@ -17,6 +17,9 @@
       "settings": {
         "terminal.integrated.defaultProfile.linux": "attach-uvicorn",
         "terminal.integrated.profiles.linux": {
+          "normal": {
+            "path": "bash"
+          },
           "attach-uvicorn": {
             "path": "bash",
             "args": ["-c", "tmux attach-session -t uvicorn"]
