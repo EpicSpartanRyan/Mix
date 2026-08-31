@@ -58,3 +58,29 @@ async def trigger_polars_task():
 async def trigger_pytorch_task():
     task = run_torch_test.delay()
     return {"message": "Test Pytorch iniciado", "task_id": task.id}
+
+
+@router.get("/run-all-tests")
+async def trigger_all_tests():
+    cupy_task = run_cupy_matrix_mult.delay()
+    dragonfly_task = test_dragonfly_connection.delay()
+    duckdb_task = run_duckdb_test.delay()
+    emqx_task = test_emqx_connection.delay()
+    milvus_task = test_milvus_connection.delay()
+    oceanbase_task = test_oceanbase_connection.delay()
+    polars_task = run_polars_test.delay()
+    pytorch_task = run_torch_test.delay()
+
+    return {
+        "message": "Todos os testes iniciados",
+        "tasks": {
+            "cupy": cupy_task.id,
+            "dragonfly": dragonfly_task.id,
+            "duckdb": duckdb_task.id,
+            "emqx": emqx_task.id,
+            "milvus": milvus_task.id,
+            "oceanbase": oceanbase_task.id,
+            "polars": polars_task.id,
+            "pytorch": pytorch_task.id,
+        },
+    }
