@@ -1,12 +1,5 @@
 #!/bin/bash
 
-set -o errexit
-set -o pipefail
-set -o nounset
-
-
-# uvicorn main:app --reload --host 0.0.0.0
-
 # Inicia una sesión de tmux desacoplada (-d) ejecutando uvicorn directamente
 tmux new-session -d -s uvicorn "uvicorn main:app --reload --host 0.0.0.0"
 
