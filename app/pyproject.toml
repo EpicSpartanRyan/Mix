@@ -97,7 +97,7 @@ dependencies = [
   "rich==15.0.0",
   "rich-toolkit==0.20.3",
   "rignore==0.8.1",
-  "sentry-sdk==2.68.0",
+  "sentry-sdk==2.68.1",
   "setuptools==84.0.0",
   "shellingham==1.5.4",
   "six==1.17.0",
