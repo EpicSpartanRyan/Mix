@@ -105,7 +105,7 @@ dependencies = [
   "SQLAlchemy-Utils==0.38.3",
   "sqlglot==30.17.0",
   "sqlmodel==0.0.42",
-  "starlette==0.48.0",
+  "starlette==1.6.0",
   "sympy==1.14.0",
   "torch==2.13.0",
   "torchaudio==2.11.0",
