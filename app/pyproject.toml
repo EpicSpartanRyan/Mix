@@ -25,7 +25,7 @@ dependencies = [
   "cuda-pathfinder==1.8.0",
   "cuda-toolkit==13.0.3.0",
   "cupy-cuda13x==14.2.0",
-  "detect-installer==0.1.0",
+  "detect-installer==0.2.1",
   "dnspython==2.8.0",
   "duckdb==1.5.5",
   "email-validator==2.3.0",
