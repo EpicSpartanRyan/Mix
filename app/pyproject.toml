@@ -78,7 +78,7 @@ dependencies = [
   "polars-runtime-32==1.43.2",
   "prometheus_client==0.26.0",
   "prompt_toolkit==3.0.53",
-  "protobuf==7.35.1",
+  "protobuf==7.36.1",
   "pydantic==2.13.4",
   "pydantic-extra-types==2.11.1",
   "pydantic-settings==2.15.0",
