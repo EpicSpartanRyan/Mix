@@ -1,7 +1,5 @@
 services:
   # Servicio 1: Tu Aplicación Principal
-
-  #TODO: agregar volumes de emqx, dragonfly, oceanbase
   main-app:
     build:
       context: .
@@ -120,6 +118,19 @@ services:
     networks:
       - app-net
 
+  # Servicio Nuevo: DockGraph (Visualizador de infraestructura Docker en tiempo real)
+  dockgraph:
+    image: dockgraph/dockgraph:latest
+    container_name: dockgraph
+    restart: unless-stopped
+    ports:
+      - "7800:7800"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      dockgraph.self: "true"
+    networks:
+      - app-net
 
   # Servicio Nuevo: EMQX (Broker MQTT Enterprise/Community)
   emqx:
@@ -151,7 +162,6 @@ services:
     networks:
       - app-net
 
-  # ... (OceanBase, etcd, minio y milvus-standalone siguen igual)
   oceanbase:
     image: oceanbase/oceanbase-ce:latest
     container_name: oceanbase_db
@@ -176,7 +186,6 @@ services:
   # SERVICIOS PARA MILVUS (con milvusdb/etcd)
   # ==========================================
   
-  # Dependencia etcd provista por milvusdb
   etcd:
     image: quay.io/coreos/etcd:v3.5.16
     container_name: milvus-etcd
@@ -194,7 +203,6 @@ services:
     networks:
       - app-net
 
-  # Dependencia: MinIO (Almacenamiento de objetos)
   minio:
     image: minio/minio:latest
     container_name: milvus-minio
@@ -208,7 +216,6 @@ services:
     networks:
       - app-net
 
-  # Milvus Standalone
   milvus-standalone:
     image: milvusdb/milvus:latest
     container_name: milvus-standalone
