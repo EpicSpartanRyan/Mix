@@ -36,7 +36,6 @@ La arquitectura desacopla la ingesta masiva de dispositivos físicos y la proces
 
 * **Gestión de Dependencias con `uv`**: Migrado completamente al gestor ultrarrápido `uv` para una resolución de dependencias óptima y tiempos de compilación mínimos.
 * **Entorno de Desarrollo (Devcontainer)**: Configurado nativamente mediante `docker-compose.yml` para garantizar paridad absoluta entre entornos locales y de producción, integrando una consola **tmux** autoacoplada al iniciar el contenedor.
-* **Automatización con Dependabot**: Configurado para gestionar hasta 20 pull requests concurrentes con escaneos programados a las 12:00 UTC (06:00 AM CDMX).
 * **Gestión de Base de Datos y Migraciones**: Implementación de **SQLModel** como ORM moderno basado en Pydantic y SQLAlchemy, acompañado de **Alembic** para el control de versiones y migraciones de esquemas.
 * **Monitoreo y Visualización de Contenedores**: Incluye **DockGraph** para graficar en tiempo real las relaciones, estado y métricas de todos los servicios del stack.
 
