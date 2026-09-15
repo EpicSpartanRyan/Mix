@@ -204,7 +204,7 @@ services:
       - app-net
 
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: milvus-minio
     restart: unless-stopped
     environment:
