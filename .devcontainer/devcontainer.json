@@ -38,7 +38,6 @@
         "streetsidesoftware.code-spell-checker",
         "FastAPILabs.fastapi-vscode",
         "ms-azuretools.vscode-containers",
-        "icrawl.discord-vscode",
         "ms-azuretools.vscode-docker",
         "docker.docker",
         "ms-kubernetes-tools.vscode-kubernetes-tools",
@@ -48,11 +47,7 @@
         "ms-python.python",
         "ms-python.debugpy",
         "ms-python.vscode-python-envs",
-        "ms-vscode-remote.remote-ssh",
-        "ms-vscode-remote.remote-ssh-edit",
-        "ms-vscode.remote-explorer",
         "redhat.vscode-yaml",
-        "ms-vscode-remote.remote-containers",
         "charliermarsh.ruff"
       ]
     }
