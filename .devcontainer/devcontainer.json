@@ -35,20 +35,20 @@
         }
       },
       "extensions": [
-        "streetsidesoftware.code-spell-checker",
         "FastAPILabs.fastapi-vscode",
         "ms-azuretools.vscode-containers",
         "ms-azuretools.vscode-docker",
         "docker.docker",
         "ms-kubernetes-tools.vscode-kubernetes-tools",
-        "PKief.material-icon-theme",
         "magabde.focus-microservice",
         "ms-python.vscode-pylance",
         "ms-python.python",
         "ms-python.debugpy",
         "ms-python.vscode-python-envs",
         "redhat.vscode-yaml",
-        "charliermarsh.ruff"
+        "charliermarsh.ruff",
+        "GitHub.vscode-pull-request-github",
+        "github.vscode-github-actions"
       ]
     }
   },
