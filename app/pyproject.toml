@@ -16,7 +16,7 @@ dependencies = [
     "pymilvus>=3.0.2",
     "pymysql>=1.2.3",
     "redis>=8.1.0",
-    "sqlmodel>=0.0.42",
+    "sqlmodel>=0.0.44",
     "torch>=2.14.0",
     "torchvision>=0.29.0",
 ]
