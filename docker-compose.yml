@@ -203,16 +203,15 @@ services:
     networks:
       - app-net
 
-  minio:
-    image: quay.io/minio/minio:latest
-    container_name: milvus-minio
+  rustfs:
+    image: rustfs/rustfs:latest  # Cambiar por la imagen oficial o específica de RustFS que utilices
+    container_name: milvus-rustfs
     restart: unless-stopped
     environment:
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
+      - RUSTFS_ACCESS_KEY=minioadmin
+      - RUSTFS_SECRET_KEY=minioadmin
     volumes:
-      - minio-data:/data
-    command: minio server /data --console-address ":9001"
+      - rustfs-data:/data
     networks:
       - app-net
 
@@ -224,7 +223,7 @@ services:
     command: ["sh", "-c", "milvus run standalone > /dev/null 2>&1"]
     environment:
       - ETCD_ENDPOINTS=etcd:2379
-      - MINIO_ADDRESS=milvus-minio:9000
+      - MINIO_ADDRESS=milvus-rustfs:9000
     volumes:
       - milvus-data:/var/lib/milvus
     ports:
@@ -232,7 +231,7 @@ services:
       - "9091:9091"
     depends_on:
       - etcd
-      - minio
+      - rustfs
     networks:
       - app-net
 
@@ -242,7 +241,7 @@ networks:
 
 volumes:
   etcd-data:
-  minio-data:
+  rustfs-data:
   milvus-data:
   oceanbase-data:
   emqx-data:
