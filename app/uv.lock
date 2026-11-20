@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.14"
 resolution-markers = [
     "sys_platform == 'win32'",
@@ -858,7 +858,7 @@ requires-dist = [
     { name = "pymilvus", specifier = ">=3.0.2" },
     { name = "pymysql", specifier = ">=1.2.3" },
     { name = "redis", specifier = ">=8.1.0" },
-    { name = "sqlmodel", specifier = ">=0.0.47" },
+    { name = "sqlmodel", specifier = ">=0.0.50" },
     { name = "torch", specifier = ">=2.14.0", index = "https://download.pytorch.org/whl/cu132" },
     { name = "torchvision", specifier = ">=0.29.0", index = "https://download.pytorch.org/whl/cu132" },
 ]
@@ -1666,16 +1666,16 @@ wheels = [
 
 [[package]]
 name = "sqlmodel"
-version = "0.0.47"
+version = "0.0.50"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
     { name = "sqlalchemy" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4f/60/aa4cb68f03fa6bd1ca9e9a9ca89c3bc6c67f50981d0abcd9d6364609516d/sqlmodel-0.0.47.tar.gz", hash = "sha256:3606430ea6db7f00c8ae2157458b9766644ea3ad365c601e26a86cf23f5910d5", size = 98136, upload-time = "2026-09-23T17:31:07.921Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/04/6b/56dac6d06bd15f046f76edfa14eca057dc20c8781cde3df7864f744295d8/sqlmodel-0.0.50.tar.gz", hash = "sha256:8828720c5b6c397df72cdd055286846a352b614da80c1ba05ab7a57b2bb90821", size = 99272, upload-time = "2026-11-13T17:00:38.387Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/b3/988928029b0e68de7ac587c2e1ccd379aa18e7c0aa7cc426628145a032fe/sqlmodel-0.0.47-py3-none-any.whl", hash = "sha256:165294386c3e4b25fa02f151ca1abb0cbf5fdb76f6093a38aca33fdc30dfd485", size = 31314, upload-time = "2026-09-23T17:31:06.8Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/ad/f3f627bd500cd88f20db43693a20f7316490bfa193e1c05761a32344737f/sqlmodel-0.0.50-py3-none-any.whl", hash = "sha256:df518bc74287e1da0b0d7833cd00f55e77cb1cdc8c27bc29f77eea27acb51c1a", size = 31430, upload-time = "2026-11-13T17:00:37.146Z" },
 ]
 
 [[package]]
